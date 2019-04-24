@@ -1,16 +1,19 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #include "BaseTile.h"
 #include "FP_ER.h"
-#include "Components/BoxComponent.h"
 #include "Components/ArrowComponent.h"
-
+#include "Components/BoxComponent.h"
 #include "TileGenerator.h"
-#include "FP_ERCharacter.h" 
+#include "FP_ERCharacter.h"
+
 
 // Sets default values
 ABaseTile::ABaseTile()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
 	UWorld* const World = GetWorld();
 	if (World != nullptr)
 	{
@@ -21,15 +24,12 @@ ABaseTile::ABaseTile()
 	}
 }
 
-//this is to check whether git bash is working or not/
-
 void ABaseTile::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	InitializeArrows();
-	InitializeTriggers();
-	if (Triggers.Num() == 0)
-		return;
+	InitialiseArrows();
+	InitialiseTriggers();
+	if (Triggers.Num() == 0)return;
 	Triggers[0]->OnComponentBeginOverlap.AddDynamic(this, &ABaseTile::OnTriggerEnter);
 }
 
@@ -37,7 +37,7 @@ void ABaseTile::PostInitializeComponents()
 void ABaseTile::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	uint8 Result = FMath::RandHelper(2);
 	switch (Result)
 	{
@@ -54,36 +54,45 @@ void ABaseTile::BeginPlay()
 void ABaseTile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-void ABaseTile::InitializeTriggers()
+void ABaseTile::InitialiseTriggers()
 {
 	TArray<UActorComponent*> Components = GetComponentsByClass(UBoxComponent::StaticClass());
-	if (Components.Num() == 0) return;
+	if (Components.Num() == 0)
+	{
+		return;
+	}
 	for (size_t i = 0; i < Components.Num(); i++)
 	{
 		UBoxComponent* ThisTrigger = Cast<UBoxComponent>(Components[i]);
 		if (ThisTrigger != nullptr)
 		{
-			//0 spawner 1 coin box
+			//0 spawner, 1 coin box
 			ThisTrigger->SetGenerateOverlapEvents(true);
 			Triggers.Add(ThisTrigger);
 		}
+
 	}
 }
 
-void ABaseTile::InitializeArrows()
+void ABaseTile::InitialiseArrows()
 {
 	TArray<UActorComponent*> Components = GetComponentsByClass(UArrowComponent::StaticClass());
-	if (Components.Num() == 0) return;
+	if (Components.Num() == 0)
+	{
+		return;
+	}
 	for (size_t i = 0; i < Components.Num(); i++)
 	{
 		UArrowComponent* ThisArrow = Cast<UArrowComponent>(Components[i]);
 		if (ThisArrow != nullptr)
 		{
+			//0 spawner, 1 coin box
+			//ThisArrow->SetGenerateOverlapEvents = true;
 			Arrows.Add(ThisArrow);
 		}
+
 	}
 }
 
@@ -99,17 +108,16 @@ void ABaseTile::CreateCoins()
 
 FTransform ABaseTile::SetObstacleSpawns()
 {
-	uint8 ObstacleSpawnIndex = FMath::RandHelper(3);
+	uint8 ObstaclesSpawnIndex = FMath::RandHelper(3);
 
-	if (Arrows[ObstacleSpawnIndex + 1] != nullptr)
+	if (Arrows[ObstaclesSpawnIndex + 1] != nullptr)
 	{
-		return Arrows[ObstacleSpawnIndex + 1]->GetComponentTransform();
+		return Arrows[ObstaclesSpawnIndex + 1]->GetComponentTransform();
 	}
 	else
 	{
 		return FTransform();
 	}
-
 }
 
 FTransform ABaseTile::GetNextSpawnTransform()
@@ -122,24 +130,23 @@ FTransform ABaseTile::GetNextSpawnTransform()
 	{
 		return FTransform();
 	}
-
 }
 
-void ABaseTile::OnTriggerEnter(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepREsult)
+void ABaseTile::OnTriggerEnter(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//check against player
-	AFP_ERCharacter* MyCharacter = Cast< AFP_ERCharacter>(OtherActor);
+	//Check against player
+	AFP_ERCharacter* MyCharacter = Cast<AFP_ERCharacter>(OtherActor);
 	if (MyCharacter != nullptr)
 	{
-		//get ref to world
-		UWorld* const World = GetWorld();
+		//Get a ref to world
+		UWorld* const World = GetWorld();		
 		if (World != nullptr)
 		{
 			if (TileManager != nullptr)
 			{
-				//make 1 tile
+				//make some tiles
 				TileManager->CreateTile();
-				//delete after 2 sec
+				//Delete After 2 seconds
 				World->GetTimerManager().SetTimer(DelayForDestroyMe, this, &ABaseTile::DestroyMe, 2.0f);
 			}
 		}
