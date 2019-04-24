@@ -8,26 +8,26 @@
 
 class UInputComponent;
 
-UCLASS(config = Game)
+UCLASS(config=Game)
 class AFP_ERCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-		/** Pawn mesh: 1st person view (arms; seen only by self) */
-		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		class USkeletalMeshComponent* Mesh1P;
+	/** Pawn mesh: 1st person view (arms; seen only by self) */
+	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
+	class USkeletalMeshComponent* Mesh1P;
 
 	/** Gun mesh: 1st person view (seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		class USkeletalMeshComponent* FP_Gun;
+	class USkeletalMeshComponent* FP_Gun;
 
 	/** Location on gun mesh where projectiles should spawn. */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		class USceneComponent* FP_MuzzleLocation;
+	class USceneComponent* FP_MuzzleLocation;
 
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class UCameraComponent* FirstPersonCameraComponent;
+	class UCameraComponent* FirstPersonCameraComponent;
 
 
 public:
@@ -40,7 +40,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void AutoRun(float DeltaTime);
-
+	
 	void CheckforTurn();
 
 	void AddCoin();
@@ -57,44 +57,46 @@ public:
 
 	/*Desired rotation*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
-		FRotator DesiredRotation;
+	FRotator DesiredRotation;
 
 	/*Rotation speed*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
-		float RotationSpeed = 10.0f;
+	float RotationSpeed = 10.0f;
 
 	/*Turn Zone Bool*/
-	UPROPERTY(EditAnywhere, Category = "Custom Niall")
-		uint32 bCanTurn : 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
+		bool bCanTurn;
+	//uint32 bCanTurn = 1;
 
 	/*Is Dead Bool*/
-	UPROPERTY(EditAnywhere, Category = "Custom Niall")
-		uint32 bIsDead : 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
+		bool bIsDead;
+		//uint32 bIsDead : 1;
 
 	/** Gun muzzle's offset from the characters location */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		FVector GunOffset;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
+	FVector GunOffset;
 
 	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		TSubclassOf<class AFP_ERProjectile> ProjectileClass;
+	UPROPERTY(EditDefaultsOnly, Category=Projectile)
+	TSubclassOf<class AFP_ERProjectile> ProjectileClass;
 
 	/** Sound to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		class USoundBase* FireSound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
+	class USoundBase* FireSound;
 
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		class UAnimMontage* FireAnimation;
+	class UAnimMontage* FireAnimation;
 
 protected:
-
+	
 	/** Fires a projectile. */
 	void OnFire();
 
 	/** Handles stafing movement, left and right */
 	void MoveRight(float Val);
-
+	
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -107,3 +109,4 @@ public:
 	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
 };
+

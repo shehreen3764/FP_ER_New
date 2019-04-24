@@ -6,28 +6,29 @@
 #include "GameFramework/Actor.h"
 #include "FP_ERProjectile.generated.h"
 
-UCLASS(config = Game)
+UCLASS(config=Game)
 class AFP_ERProjectile : public AActor
 {
 	GENERATED_BODY()
 
-		/** Sphere collision component */
-		UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
-		class USphereComponent* CollisionComp;
+	/** Sphere collision component */
+	UPROPERTY(VisibleDefaultsOnly, Category=Projectile)
+	class USphereComponent* CollisionComp;
 
 	/** Projectile movement component */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
-		class UProjectileMovementComponent* ProjectileMovement;
+	class UProjectileMovementComponent* ProjectileMovement;
 
 public:
 	AFP_ERProjectile();
 
 	/** called when projectile hits something */
 	UFUNCTION()
-		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	/** Returns CollisionComp subobject **/
 	FORCEINLINE class USphereComponent* GetCollisionComp() const { return CollisionComp; }
 	/** Returns ProjectileMovement subobject **/
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 };
+

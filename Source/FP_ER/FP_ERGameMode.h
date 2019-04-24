@@ -14,3 +14,6 @@ class AFP_ERGameMode : public AGameModeBase
 public:
 	AFP_ERGameMode();
 };
+
+
+
