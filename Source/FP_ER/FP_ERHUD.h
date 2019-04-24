@@ -22,3 +22,4 @@ private:
 	class UTexture2D* CrosshairTex;
 
 };
+

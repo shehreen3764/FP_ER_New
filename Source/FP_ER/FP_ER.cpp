@@ -3,8 +3,8 @@
 #include "FP_ER.h"
 #include "Modules/ModuleManager.h"
 
-IMPLEMENT_PRIMARY_GAME_MODULE(FDefaultGameModuleImpl, FP_ER, "FP_ER");
-
+IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, FP_ER, "FP_ER" );
+ 
 //general log
 //DEFINE_LOG_CATEGORY_EXTERN(YourLog);
 

@@ -1,3 +1,5 @@
+// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+
 #include "FP_ERCharacter.h"
 #include "FP_ERProjectile.h"
 #include "Animation/AnimInstance.h"
@@ -64,6 +66,7 @@ void AFP_ERCharacter::Tick(float DeltaTime)
 		GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("Is Dead: %s"), bIsDead ? TEXT("True") : TEXT("False")));
 	}
 	AutoRun(DeltaTime);
+	Death();
 }
 
 void AFP_ERCharacter::AutoRun(float DeltaTime)
@@ -74,7 +77,7 @@ void AFP_ERCharacter::AutoRun(float DeltaTime)
 	CheckforTurn();
 	//Sanity check
 	if (Controller != NULL)
-	{
+	{		
 		// add movement in that direction
 		AddMovementInput(GetActorForwardVector());
 		printf("Moving");
@@ -110,7 +113,12 @@ void AFP_ERCharacter::Death()
 {
 	// If alive stop
 	if (!bIsDead)return;
-	printf("Dead");
+	UWorld* const World = GetWorld();
+	if (World != nullptr)
+	{
+		UGameplayStatics::OpenLevel(this, FName(*World->GetName()), false);
+	}
+	//printf("Dead");
 }
 
 void AFP_ERCharacter::RotateAtTurn(float Value)
@@ -193,7 +201,7 @@ void AFP_ERCharacter::Raycast()
 			}
 		}
 	}
-
+		
 	// try and play the sound if specified
 	if (FireSound != NULL)
 	{
@@ -220,7 +228,7 @@ void AFP_ERCharacter::OnFire()
 		UWorld* const World = GetWorld();
 		if (World != NULL)
 		{
-
+			
 			const FRotator SpawnRotation = GetControlRotation();
 			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
 			const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
@@ -228,10 +236,10 @@ void AFP_ERCharacter::OnFire()
 			//Set Spawn Collision Handling Override
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
+			
 			// spawn the projectile at the muzzle
 			World->SpawnActor<AFP_ERProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
-
+		
 		}
 	}
 
