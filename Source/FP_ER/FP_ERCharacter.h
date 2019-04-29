@@ -43,6 +43,7 @@ public:
 	
 	void CheckforTurn();
 
+	UFUNCTION(BlueprintCallable, Category = "Custom Niall")
 	void AddCoin();
 
 	void Death();
@@ -50,6 +51,9 @@ public:
 	void RotateAtTurn(float Value);
 
 	void Raycast();
+
+	FTimerHandle DeathDelay;
+	void ActuallyDie(); 
 
 	/*Ray Length*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
@@ -71,7 +75,23 @@ public:
 	/*Is Dead Bool*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
 		bool bIsDead;
-		//uint32 bIsDead : 1;
+
+	/*Bool to prevent infinite particle loop*/
+	UPROPERTY(EditAnywhere, Category = "Custom Niall")
+		uint32 bDoOnce : 1  ;
+
+	/*Counter for coins*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,  Category = "Custom Niall")
+		int TotalCoins = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
+		int CoinValue = 50;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
+		int ObstacleValue = 250;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
+		float CoinsVolume = 0.75f;
 
 	/** Gun muzzle's offset from the characters location */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
@@ -80,6 +100,22 @@ public:
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category=Projectile)
 	TSubclassOf<class AFP_ERProjectile> ProjectileClass;
+
+	/** Sound to play each time we collect a coin*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+		class USoundBase* CoinSound;
+
+	/** Effect to play each time we collect a coin */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+		class UParticleSystem* CoinParticle;
+
+	/** Sound to play each time we die */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	class USoundBase* DeathSound;
+
+	/** Effect to play each time we die */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	class UParticleSystem* DeathParticle;
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)

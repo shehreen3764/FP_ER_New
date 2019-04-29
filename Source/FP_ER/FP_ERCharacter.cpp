@@ -62,11 +62,13 @@ void AFP_ERCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("Can Turn: %s"), bCanTurn ? TEXT("True") : TEXT("False")));
-		GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("Is Dead: %s"), bIsDead ? TEXT("True") : TEXT("False")));
+		//GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("Can Turn: %s"), bCanTurn ? TEXT("True") : TEXT("False")));
+		//GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("Is Dead: %s"), bIsDead ? TEXT("True") : TEXT("False")));
+		GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("Score: %d"), TotalCoins));
 	}
-	AutoRun(DeltaTime);
 	Death();
+	AutoRun(DeltaTime);
+	
 }
 
 void AFP_ERCharacter::AutoRun(float DeltaTime)
@@ -80,7 +82,7 @@ void AFP_ERCharacter::AutoRun(float DeltaTime)
 	{		
 		// add movement in that direction
 		AddMovementInput(GetActorForwardVector());
-		printf("Moving");
+		//printf("Moving");
 	}
 }
 
@@ -89,10 +91,10 @@ void AFP_ERCharacter::CheckforTurn()
 	//Get rotation every frame
 	FRotator InitialRotation = GetControlRotation();
 	//debug message
-	if (GEngine)
+	/*if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), FColor::Red, FString::Printf(TEXT("Initial Rot: %s , Desired Rot: %s"), *InitialRotation.ToString(), *DesiredRotation.ToString()));
-	}
+	}*/
 	//if current rotation is not equivalent to desired rotation then make it so
 	if (InitialRotation != DesiredRotation)
 	{
@@ -100,26 +102,77 @@ void AFP_ERCharacter::CheckforTurn()
 		FRotator NewRotation = FMath::RInterpTo(InitialRotation, DesiredRotation, GetWorld()->GetDeltaSeconds(), RotationSpeed);
 		// Apply turn
 		Controller->SetControlRotation(NewRotation);
-		printf("Rotated");
+		//printf("Rotated");
 	}
 }
 
 void AFP_ERCharacter::AddCoin()
 {
-	printf("Coin Added");
-}
+	//printf("Coin Added");
+	TotalCoins += CoinValue;
+	//get current location
+	const FVector Location = GetActorLocation();
+	if (CoinSound != nullptr && CoinParticle != nullptr)
+	{
+		//play sound, spawn effect
+		UGameplayStatics::SpawnEmitterAtLocation(this, CoinParticle, Location);
+		UGameplayStatics::PlaySoundAtLocation(this, CoinSound, Location, CoinsVolume);
+	}
+} 
 
 void AFP_ERCharacter::Death()
 {
 	// If alive stop
 	if (!bIsDead)return;
+	//do once
+	if (!bDoOnce)
+	{
+		bDoOnce = true;
+		//get ref to world
+		UWorld* const World = GetWorld();
+		if (World != nullptr)
+		{
+			//get ref to player controller
+			APlayerController* MyPlayerController = World->GetFirstPlayerController();
+			if (MyPlayerController != nullptr)
+			{
+				//start a counter for level restart
+				World->GetTimerManager().SetTimer(DeathDelay, this, &AFP_ERCharacter::ActuallyDie, 2.5f);
+				//prevent further movement
+				DisableInput(MyPlayerController);
+				//get current location
+				const FVector Location = GetActorLocation();
+				//set a volume
+				float Volume = 0.25f;
+				if (DeathSound != nullptr && DeathParticle != nullptr)
+				{
+					//play sound, spawn effect
+					UGameplayStatics::SpawnEmitterAtLocation(this, DeathParticle, Location);
+					UGameplayStatics::PlaySoundAtLocation(this, DeathSound, Location, Volume);
+				}
+				//fake destroy
+				GetMesh()->SetVisibility(false);
+				Mesh1P->SetVisibility(false);
+				FP_Gun->SetVisibility(false);
+			}
+		}
+	}
+}
+
+void AFP_ERCharacter::ActuallyDie()
+{
+	//Get ref to world
 	UWorld* const World = GetWorld();
 	if (World != nullptr)
 	{
-		UGameplayStatics::OpenLevel(this, FName(*World->GetName()), false);
+		//just in case, set dead to false and empty the timer
+		bIsDead = false;
+		World->GetTimerManager().ClearTimer(DeathDelay);
+		//reload the scene
+		UGameplayStatics::OpenLevel(this, FName(*World->GetName(), false));
 	}
-	//printf("Dead");
 }
+
 
 void AFP_ERCharacter::RotateAtTurn(float Value)
 {
@@ -174,7 +227,7 @@ void AFP_ERCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInp
 
 void AFP_ERCharacter::Raycast()
 {
-	printf("Raycast");
+	//printf("Raycast");
 	//Get ref to world
 	UWorld* const World = GetWorld();
 	// Sanity check
@@ -196,8 +249,14 @@ void AFP_ERCharacter::Raycast()
 			const bool bTraceComplex = false;
 			if (MyController->GetHitResultAtScreenPosition(MousePosition, ECC_Visibility, bTraceComplex, HitResult))
 			{
-				printf("HitSomething");
-				HitResult.GetActor()->Destroy();
+				if (HitResult.GetActor()->Tags.Num() > 0)
+				{
+					if (HitResult.GetActor()->Tags[0] == "Destroyable")
+					{
+						HitResult.GetActor()->Destroy();
+						TotalCoins += ObstacleValue;
+					}
+				}
 			}
 		}
 	}
@@ -219,6 +278,8 @@ void AFP_ERCharacter::Raycast()
 		}
 	}
 }
+
+
 
 void AFP_ERCharacter::OnFire()
 {

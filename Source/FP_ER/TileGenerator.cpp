@@ -62,13 +62,17 @@ void ATileGenerator::CreateTile()
 void ATileGenerator::AddFloorTile()
 {
 	//obtain a random index for which tile to spawn
-	uint8 RandomStraightTile = FMath::RandHelper(TileStraights.Num());
+	uint8 RandomStraightTile = FMath::RandRange(PreviousStraightIndex, TileStraights.Num()-1); 
+
+	PreviousStraightIndex = RandomStraightTile; 
+	if (PreviousStraightIndex == TileStraights.Num())
+		PreviousStraightIndex = 0;
 
 	//check if valid
 	if (TileStraights[RandomStraightTile] != nullptr)
 	{
 		UWorld* const World = GetWorld();
-		if (World != nullptr)
+		if (World != nullptr) 
 		{
 			//get pre-requisites for spawning
 			const FVector SpawnLocation = NextSpawnPoint.GetLocation();
@@ -92,7 +96,11 @@ void ATileGenerator::AddFloorTile()
 void ATileGenerator::AddCornerTile()
 {
 	//obtain a random index for which tile to spawn
-	uint8 RandomCornerTile = FMath::RandHelper(TileCorners.Num());
+	uint8 RandomCornerTile = FMath::RandRange(PreviousCornerIndex, TileCorners.Num()-1);
+
+	PreviousCornerIndex = RandomCornerTile;
+	if (PreviousCornerIndex == TileCorners.Num())
+		PreviousCornerIndex = 0;
 
 	//check if valid
 	if (TileCorners[RandomCornerTile] != nullptr)
