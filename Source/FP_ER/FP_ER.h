@@ -7,6 +7,7 @@
 #include "Engine.h"
 #include "CoreMinimal.h"
 
+//since text on hud not working, therefore this is not commented out, unlike the tutorial
 #define print(text) if(GEngine)GEngine->AddOnScreenDebugMessage(-1,GetWorld()->GetDeltaSeconds(),FColor::White,text)
 
 //general log

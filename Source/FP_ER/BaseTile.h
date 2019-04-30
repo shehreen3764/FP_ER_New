@@ -62,4 +62,5 @@ public:
 	TArray<UBoxComponent*> Triggers;
 	FTimerHandle DelayForDestroyMe;
 	class ATileGenerator* TileManager;
+	class AObstacleGenerator* ObstacleManager;
 };

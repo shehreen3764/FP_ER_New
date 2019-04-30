@@ -13,6 +13,9 @@ class AFP_ERGameMode : public AGameModeBase
 
 public:
 	AFP_ERGameMode();
+
+	virtual void BeginPlay() override;//this creates error in tutorial. so he deleted. but without this doesn't build
+
 };
 
 

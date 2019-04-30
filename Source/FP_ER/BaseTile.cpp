@@ -5,7 +5,9 @@
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "TileGenerator.h"
+#include "ObstacleGenerator.h"
 #include "FP_ERCharacter.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -20,6 +22,10 @@ ABaseTile::ABaseTile()
 		for (TActorIterator<ATileGenerator> ActorItr(World); ActorItr; ++ActorItr)
 		{
 			TileManager = *ActorItr;
+		}
+		for (TActorIterator<AObstacleGenerator> ActorItr2(World); ActorItr2; ++ActorItr2)
+		{
+			ObstacleManager = *ActorItr2;
 		}
 	}
 }
@@ -46,6 +52,9 @@ void ABaseTile::BeginPlay()
 		break;
 	case 1:
 		CreateObstacles();
+		break;
+	default:
+		CreateCoins();
 		break;
 	}
 }
@@ -98,11 +107,38 @@ void ABaseTile::InitialiseArrows()
 
 void ABaseTile::CreateObstacles()
 {
-
+	UWorld* const World = GetWorld();
+	if (World != nullptr)
+	{
+		uint8 NumberOfObstaclesToSpawn = FMath::RandRange(1,ObstacleManager->MaxNumberOfObstacles);
+		
+		for (size_t i = 0; i < NumberOfObstaclesToSpawn; i++)
+		{
+			const FVector Location = Arrows[1+i]->GetComponentLocation();
+			const FRotator Rotation = Arrows[1+i]->GetComponentRotation();
+			uint8 RandomObstacle = FMath::RandRange(0, ObstacleManager->NegativeObstacles.Num()-1);
+			ObstacleManager->CreateNegativeObstacle(GetRootComponent(), RandomObstacle, Location, Rotation);
+		}
+	}
 }
 
 void ABaseTile::CreateCoins()
 {
+	UWorld* const World = GetWorld();
+	if (World != nullptr)
+	{
+		uint8 NumberOfCoinsToSpawn = FMath::RandRange(5, 15);
+
+		for (size_t i = 0; i < NumberOfCoinsToSpawn; i++)
+		{
+			const FVector SpawnOrigin = Triggers[1]->Bounds.Origin;
+			const FVector SpawnExtent = Triggers[1]->Bounds.BoxExtent;
+			
+			const FVector Location = UKismetMathLibrary::RandomPointInBoundingBox(SpawnOrigin, SpawnExtent);
+			const FRotator Rotation = GetActorRotation();
+			ObstacleManager->CreatePositiveObstacle(this->GetRootComponent(), 0, Location, Rotation);
+		}
+	}
 
 }
 

@@ -4,16 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "TileGenerator.generated.h"
+#include "ObstacleGenerator.generated.h"
 
 UCLASS()
-class FP_ER_API ATileGenerator : public AActor
+class FP_ER_API AObstacleGenerator : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	ATileGenerator();
 
 	/**
 	 * The functions of interest to initialization order for an Actor is roughly as follows:
@@ -27,41 +23,29 @@ public:
 
 	virtual void PostInitializeComponents() override;
 
-//protected:
-	// Called when the game starts or when spawned
+	//protected:
+		// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-//public:	
-	// Called every frame
+	//public:	
+		// Called every frame
 	virtual void Tick(float DeltaSeconds) override;
-
-	UFUNCTION()
-		void CreateTile();
-		void AddFloorTile();
-
-		void AddCornerTile();
 	
-		void CreateStartingTiles();
+public:	
+	// Sets default values for this actor's properties
+	AObstacleGenerator();
+
+	void CreatePositiveObstacle(USceneComponent* Self, uint8 WhichIndex, const FVector& Location, const FRotator& Rotation);
+	void CreateNegativeObstacle(USceneComponent* Self, uint8 WhichIndex, const FVector& Location, const FRotator& Rotation);
 
 public:
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
-		FTransform NextSpawnPoint;
+		TArray<TSubclassOf<class AObstacleBase>> NegativeObstacles;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
-		TArray<TSubclassOf<class ABaseTile>> TileStraights;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
-		TArray<TSubclassOf<class ABaseTile>> TileCorners;
+		TArray<TSubclassOf<class ACoinBase>> PositiveObstacles;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
-		int CurrentStraightsCounter = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
-		int MaxStraightsCounter = 15;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
-		int PreviousStraightIndex = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Niall")
-		int PreviousCornerIndex = 0;
+	int32 MaxNumberOfObstacles = 2;
 };
